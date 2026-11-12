@@ -1,3 +1,5 @@
+import type { RunCorrectionEffect } from './correction'
+
 export interface RunItem {
   id: number
   rule_id: number | null
@@ -38,6 +40,7 @@ export interface RuleRun {
 export interface RunDetail extends RuleRun {
   items: RunItem[]
   issue_count: number
+  correction: RunCorrectionEffect | null
 }
 
 export interface ReportPayload {

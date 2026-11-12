@@ -7,6 +7,7 @@ export const MESSAGES = {
   rules: '规则构建器',
   runs: '执行台账',
   issues: '问题分诊板',
+  corrections: '纠错台账',
   login: '登录',
   logout: '退出',
   uploadHint: '先上传一份 CSV：首行为表头，单列不要重名，建议不超过 20 万行',

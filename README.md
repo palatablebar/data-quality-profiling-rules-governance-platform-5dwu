@@ -46,6 +46,7 @@ docker compose exec backend python -m scripts.seed_demo
 - **列级剖析**：`profiling/loader.py` 读 CSV/Parquet/JSONL/XLSX（重复列名 400、非 UTF-8 400、超行数 400）；`type_infer.py` 抽样 1 万行按命中率 ≥0.95 判类型；`stats.py` 全量算空值率/基数/分位/Top 值；`pattern.py` 字符类归并推断正则与命中率；`outliers.py` IQR 1.5 倍异常值。
 - **规则构建与批量执行**：7 种 `RuleType` 各自独立校验器，pandas 向量化定位 + 逐条保留 `row_index` 与原文 `observed_value`，每规则最多落 `sample_limit` 条 Issue 但统计值记真实数量；违规行同时写入隔离卷 `run_XXXXXX_quarantine.csv`。
 - **问题分诊与指派**：状态机 `open → triaged → fixed/ignored`，支持按严重度/状态/规则筛选、批量指派、复制复现片段。
+- **纠错台账（待修正清单）**：报送前纠错的跨批次台账。每个规则批次把命中行按 `(rule_id, business_key, key_occurrence)` 归并进 `correction_items`——同一业务行在同一规则下永远只有一条；修正版整份重传后再执行只结转清单：修好的转 `fixed` 关闭、没修好的保持 `open` 并刷新行号与观测值、复发的原条目重开，重复执行同一修正版不新增记录。`/corrections` 页与 `GET /datasets/{id}/corrections/summary` 给出对账恒等式 `原文件行数 = 最终可用记录 + 清单内去重业务行数`（业务键重复的行按 `key_occurrence` 区分，同一业务行不重复计算）。业务键列经 `PATCH /datasets/{id}` 设置（`business_key_column`，变更会清空台账待下一批次重建；未设置时按 `row#行号` 锚定）。每个批次的结转快照（新增/仍待修正/重开/已修好 + 对账数）落在 `rule_runs.correction_json`，随 `GET /runs/{id}` 与 `GET /runs/{id}/corrections` 返回。
 - **审计与配额**：写操作在响应阶段写入 `audit_logs`（before/after 快照）；`users.daily_scan_quota` + Redis 滑动窗口 + `SETNX runlock:{dataset_id}` 保证同一数据集不并行执行，超限 429 并带 `retry_after`。
 
 ## 技术栈
@@ -145,6 +146,11 @@ cd backend && celery -A app.config.celery_app worker -l info
 
 - 前端：`constants/issueStatus.ts`（定义 + 标签）、`types/issue.ts`、`components/issue/IssueStatusMenu.vue`（状态按钮组）、`components/issue/IssueDrawer.vue`、`components/issue/IssueFilterBar.vue`、`stores/issueStore.ts`、`pages/IssuesPage.vue`（列分组）
 - 后端：`app/constants/issue_status.py`（定义 + 状态机 TRANSITIONS）、`services/issue_service.py`（流转校验）、`rules/engine.py`（新建 open）、`rules/engine.py#recheck_open_issues`（收敛转 fixed）、`models/issue.py`、`scripts/seed_demo.py`（triaged 预置）
+
+### CorrectionStatus（open/fixed）
+
+- 前端：`constants/correctionStatus.ts`（定义 + 标签）、`types/correction.ts`、`api/correction.ts`、`stores/correctionStore.ts`、`hooks/useCorrectionFilter.ts`、`components/correction/CorrectionSummaryCards.vue`、`components/correction/CorrectionTable.vue`、`pages/CorrectionsPage.vue`
+- 后端：`app/constants/correction_status.py`（定义 + 中文标签）、`models/correction_item.py`（台账表 + 身份唯一约束）、`services/correction_service.py`（批次结转 / 对账 / 键列重置）、`rules/engine.py#execute_batch`（每批次末尾同步台账）、`schemas/correction.py`、`controllers/correction_controller.py`、`routes/correction.py`、`services/dataset_service.py#update_business_key`（键列设置与台账重置）、`models/rule_run.py`（correction_json 快照）、`models/dataset.py`（business_key_column）
 
 ### RuleRunStatus（queued/running/succeeded/failed）
 

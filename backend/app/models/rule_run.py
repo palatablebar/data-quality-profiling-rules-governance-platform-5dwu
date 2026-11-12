@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.config.database import Base
@@ -25,6 +25,8 @@ class RuleRun(Base):
     rows_scanned: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     duration_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     report_no: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # 本批次对待修正清单的结转快照（created/still_open/reopened/fixed/对账数）
+    correction_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     error_code: Mapped[str | None] = mapped_column(String(24), nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

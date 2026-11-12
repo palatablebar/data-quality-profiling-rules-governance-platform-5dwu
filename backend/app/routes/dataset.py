@@ -7,6 +7,7 @@ from app.controllers import dataset_controller
 from app.middlewares.auth import get_current_user
 from app.middlewares.rbac import require_roles
 from app.models import User
+from app.schemas.correction import DatasetKeyUpdate
 from app.services import dataset_service
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -30,6 +31,17 @@ async def upload(
 @router.get("/{dataset_id}")
 def get_dataset(dataset_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return dataset_controller.get_dataset(db, dataset_id)
+
+
+@router.patch("/{dataset_id}")
+def update_dataset(
+    dataset_id: int,
+    payload: DatasetKeyUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles("steward", "analyst")),
+):
+    return dataset_controller.update_business_key(request, db, user, dataset_id, payload)
 
 
 @router.delete("/{dataset_id}")

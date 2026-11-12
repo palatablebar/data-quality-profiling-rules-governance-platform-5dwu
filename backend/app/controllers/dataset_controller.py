@@ -50,6 +50,20 @@ def get_dataset(db: Session, dataset_id: int) -> dict:
     return dataset_service.serialize(db, dataset)
 
 
+def update_business_key(request, db: Session, user: User, dataset_id: int, payload) -> dict:
+    dataset = dataset_service.get_dataset(db, dataset_id)
+    dataset, before, reset_items = dataset_service.update_business_key(db, dataset, payload.business_key_column)
+    audit_event(
+        request,
+        AUDIT_ACTIONS["DATASET_KEY_UPDATE"],
+        "Dataset",
+        dataset.id,
+        before,
+        {"business_key_column": dataset.business_key_column, "reset_items": reset_items},
+    )
+    return dataset_service.serialize(db, dataset)
+
+
 def delete_dataset(request, db: Session, user: User, dataset_id: int) -> dict:
     dataset = dataset_service.get_dataset(db, dataset_id)
     before = dataset_service.delete_dataset(db, dataset, user)

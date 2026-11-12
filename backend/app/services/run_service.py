@@ -88,6 +88,7 @@ def run_detail(db: Session, run: RuleRun) -> dict:
     payload = serialize_run(run, dataset, with_items=True)
     issue_count = db.query(Issue).filter(Issue.rule_run_id == run.id).count()
     payload["issue_count"] = issue_count
+    payload["correction"] = run.correction_json
     return payload
 
 

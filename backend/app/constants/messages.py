@@ -21,6 +21,7 @@ API_MESSAGES = {
 AUDIT_ACTIONS = {
     "DATASET_UPLOAD": "上传数据集",
     "DATASET_DELETE": "删除数据集",
+    "DATASET_KEY_UPDATE": "设置业务键列",
     "PROFILE_RECOMPUTE": "重算剖析",
     "RULE_CREATE": "新建规则",
     "RULE_UPDATE": "修改规则",

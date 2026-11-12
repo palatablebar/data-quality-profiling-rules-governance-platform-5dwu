@@ -16,6 +16,12 @@ const router = createRouter({
     { path: '/rules', name: 'rules', component: () => import('../pages/RulesPage.vue'), meta: { title: '规则构建器' } },
     { path: '/runs', name: 'runs', component: () => import('../pages/RunsPage.vue'), meta: { title: '执行台账' } },
     { path: '/issues', name: 'issues', component: () => import('../pages/IssuesPage.vue'), meta: { title: '问题分诊板' } },
+    {
+      path: '/corrections',
+      name: 'corrections',
+      component: () => import('../pages/CorrectionsPage.vue'),
+      meta: { title: '纠错台账' },
+    },
     { path: '/:pathMatch(.*)*', redirect: '/datasets' },
   ],
 })

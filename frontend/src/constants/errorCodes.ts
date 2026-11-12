@@ -16,4 +16,5 @@ export const ERROR_CODES: Record<string, { message: string; hint: string }> = {
   'QUAL-2014': { message: '问题单已关闭，无法再流转', hint: '先把状态改回 open' },
   'QUAL-2015': { message: '当前角色无权执行该操作', hint: '用管家或分析师账号登录' },
   'QUAL-2016': { message: '未登录或登录已过期', hint: '重新登录' },
+  'QUAL-2017': { message: '业务键列不存在于当前文件', hint: '键列名要与表头完全一致' },
 }

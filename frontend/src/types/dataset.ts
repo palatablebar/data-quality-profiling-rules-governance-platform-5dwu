@@ -17,6 +17,7 @@ export interface Dataset {
   file_size: number
   checksum: string
   status: string
+  business_key_column: string | null
   uploaded_at: string | null
   rule_count: number
   open_issues: number

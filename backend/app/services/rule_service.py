@@ -165,9 +165,10 @@ def delete_rule(db: Session, actor: User, rule: QualityRule) -> dict:
     _assert_can_edit(actor, rule)
     before = {"id": rule.id, "name": rule.name, "dataset_id": rule.dataset_id}
     db.query(QualityRule).filter(QualityRule.id == rule.id).delete()
-    from app.models import Issue
+    from app.models import CorrectionItem, Issue
 
     db.query(Issue).filter(Issue.rule_id == rule.id).delete()
+    db.query(CorrectionItem).filter(CorrectionItem.rule_id == rule.id).delete()
     db.commit()
     log_event("AUDIT_RULE_DELETE", rule_id=before["id"], dataset_id=before["dataset_id"])
     return before

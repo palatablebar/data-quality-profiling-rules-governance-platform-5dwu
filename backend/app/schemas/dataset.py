@@ -13,6 +13,7 @@ def serialize_dataset(dataset, profile_run=None, rule_count: int = 0, open_issue
         "file_size": dataset.file_size,
         "checksum": dataset.checksum,
         "status": dataset.status,
+        "business_key_column": dataset.business_key_column,
         "uploaded_at": iso(dataset.uploaded_at),
         "rule_count": rule_count,
         "open_issues": open_issues,

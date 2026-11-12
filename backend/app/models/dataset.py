@@ -21,6 +21,8 @@ class Dataset(Base):
     checksum: Mapped[str] = mapped_column(String(64), nullable=False, default="")
     file_size: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="uploaded")
+    # 纠错台账用的业务键列（如 account_no）；为空时退化为 row#行号 锚定
+    business_key_column: Mapped[str | None] = mapped_column(String(190), nullable=True)
     is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
@@ -28,6 +30,7 @@ class Dataset(Base):
     profiles = relationship("ColumnProfile", back_populates="dataset", cascade="all, delete-orphan")
     rules = relationship("QualityRule", back_populates="dataset", cascade="all, delete-orphan")
     runs = relationship("RuleRun", back_populates="dataset", cascade="all, delete-orphan")
+    correction_items = relationship("CorrectionItem", back_populates="dataset", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Dataset {self.name} rows={self.row_count}>"

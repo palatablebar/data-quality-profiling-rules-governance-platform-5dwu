@@ -26,12 +26,16 @@
           <RouterLink to="/issues" class="rail-link" active-class="active">
             <span>问题分诊板</span><span class="text-[11px]">{{ issueTotal }}</span>
           </RouterLink>
+          <RouterLink to="/corrections" class="rail-link" active-class="active">
+            <span>纠错台账</span>
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink to="/datasets" class="rail-link !justify-center !px-0" active-class="active" title="数据集">数</RouterLink>
           <RouterLink to="/rules" class="rail-link !justify-center !px-0" active-class="active" title="规则">规</RouterLink>
           <RouterLink to="/runs" class="rail-link !justify-center !px-0" active-class="active" title="批次">批</RouterLink>
           <RouterLink to="/issues" class="rail-link !justify-center !px-0" active-class="active" title="问题">诊</RouterLink>
+          <RouterLink to="/corrections" class="rail-link !justify-center !px-0" active-class="active" title="纠错">纠</RouterLink>
         </template>
       </nav>
 

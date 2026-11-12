@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.config.settings import settings
 from app.constants.error_codes import AppError, ErrorCode
 from app.log_helpers import audit_event  # noqa: F401  (re-exported for controllers)
-from app.models import ColumnProfile, Dataset, Issue, QualityRule, RuleRun, User
+from app.models import ColumnProfile, CorrectionItem, Dataset, Issue, QualityRule, RuleRun, User
 from app.profiling.loader import load_frame
 from app.schemas.dataset import serialize_dataset
 from app.utils import storage
@@ -43,6 +43,29 @@ def serialize(db: Session, dataset: Dataset) -> dict:
         rule_count=_rule_count(db, dataset.id),
         open_issues=_open_issue_count(db, dataset.id),
     )
+
+
+def update_business_key(db: Session, dataset: Dataset, column: str | None) -> tuple[Dataset, dict, int]:
+    """设置/清除纠错台账的业务键列。键列变更后旧台账身份失效，清空等下一批次重建。"""
+    from app.services import correction_service
+
+    before = {"business_key_column": dataset.business_key_column}
+    column = (column or "").strip() or None
+    if column == dataset.business_key_column:
+        return dataset, before, 0
+    if column is not None:
+        loaded = load_frame(dataset.file_path, dataset.source_format)
+        if column not in loaded.columns:
+            raise AppError(
+                ErrorCode.BUSINESS_KEY_INVALID,
+                detail={"column": column, "columns": loaded.columns[:30]},
+            )
+    removed = correction_service.reset_ledger(db, dataset.id, reason="business_key_changed")
+    dataset.business_key_column = column
+    db.commit()
+    db.refresh(dataset)
+    log_event("DATASET_KEY_UPDATED", dataset_id=dataset.id, business_key_column=column or "-", reset_items=removed)
+    return dataset, before, removed
 
 
 def list_datasets(db: Session, include_deleted: bool = False) -> list[Dataset]:
@@ -143,6 +166,7 @@ def delete_dataset(db: Session, dataset: Dataset, actor: User) -> dict:
     dataset.status = "deleted"
     db.query(QualityRule).filter(QualityRule.dataset_id == dataset.id).delete()
     db.query(ColumnProfile).filter(ColumnProfile.dataset_id == dataset.id).delete()
+    db.query(CorrectionItem).filter(CorrectionItem.dataset_id == dataset.id).delete()
     db.commit()
     removed = storage.remove_file(dataset.file_path)
     if not removed:

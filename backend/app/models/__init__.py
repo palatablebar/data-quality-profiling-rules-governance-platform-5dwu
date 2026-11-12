@@ -6,6 +6,7 @@ from app.models.quality_rule import QualityRule
 from app.models.rule_run import RuleRun
 from app.models.rule_run_item import RuleRunItem
 from app.models.issue import Issue
+from app.models.correction_item import CorrectionItem
 from app.models.audit_log import AuditLog
 
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     "RuleRun",
     "RuleRunItem",
     "Issue",
+    "CorrectionItem",
     "AuditLog",
 ]

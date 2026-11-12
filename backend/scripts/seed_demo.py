@@ -147,6 +147,14 @@ def _upsert_dataset(db, owner: User, filename: str, payload: bytes, source_forma
     return dataset
 
 
+def _ensure_business_key(db, dataset: Dataset, column: str) -> None:
+    """纠错台账的业务键列：只在未设置时写入，重复 seed 不覆盖用户后续修改。"""
+    if dataset.business_key_column:
+        return
+    dataset.business_key_column = column
+    db.commit()
+
+
 def _ensure_profile(db, dataset: Dataset, actor: User) -> RuleRun:
     existing = (
         db.query(RuleRun)
@@ -262,6 +270,10 @@ def run_seed() -> dict:
         # the customer account table is the primary specimen -> created first
         account_dataset = _upsert_dataset(db, steward, ACCOUNT_FILE, account_bytes, "csv")
         org_dataset = _upsert_dataset(db, steward, ORG_FILE, org_bytes, "csv")
+
+        # 纠错台账按业务键归并：账户表用 account_no，机构字典用 branch_code
+        _ensure_business_key(db, account_dataset, "account_no")
+        _ensure_business_key(db, org_dataset, "branch_code")
 
         _ensure_profile(db, account_dataset, steward)
         _ensure_profile(db, org_dataset, steward)

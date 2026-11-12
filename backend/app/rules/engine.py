@@ -84,6 +84,7 @@ def execute_batch(
     passed = 0
     failed = 0
     violations_by_rule: dict[int, set[int]] = {}
+    expected_by_rule: dict[int, str] = {}
     quarantine_indexes: set[int] = set()
 
     for rule in rules:
@@ -153,6 +154,7 @@ def execute_batch(
                 row_index for row_index, _, _ in result.samples[:QUARANTINE_ROW_LIMIT]
             )
             violations_by_rule[rule.id] = result.violated_rows
+            expected_by_rule[rule.id] = result.expected or ""
             item.passed = result.violation_count == 0
             item.violation_count = result.violation_count
             log_event(
@@ -185,6 +187,11 @@ def execute_batch(
         header = [str(c) for c in df.columns]
         rows = [[str(value) for value in df.loc[idx].tolist()] for idx in ordered if idx in df.index]
         storage.write_quarantine(run.id, header, rows)
+
+    # 待修正清单结转：命中行并入台账、修好的关闭、复发的重开（幂等，不重复生成）
+    from app.services import correction_service
+
+    correction_service.sync_after_run(db, dataset, run, rules, expected_by_rule, df, violations_by_rule)
 
     run.rules_passed = passed
     run.rules_failed = failed

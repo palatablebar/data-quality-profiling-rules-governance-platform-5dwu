@@ -14,7 +14,7 @@ from app.middlewares.audit_logger import AuditMiddleware
 from app.middlewares.auth import AuthMiddleware
 from app.middlewares.error_handler import RequestIdMiddleware, install_error_handlers
 from app.middlewares.quota import RateLimitMiddleware
-from app.routes import audit, auth, dataset, health, issue, profile, rule, run
+from app.routes import audit, auth, correction, dataset, health, issue, profile, rule, run
 from app.utils import storage
 from app.utils.logger import log_event
 
@@ -71,6 +71,7 @@ app.include_router(profile.router)
 app.include_router(rule.router)
 app.include_router(run.router)
 app.include_router(issue.router)
+app.include_router(correction.router)
 app.include_router(audit.router)
 
 

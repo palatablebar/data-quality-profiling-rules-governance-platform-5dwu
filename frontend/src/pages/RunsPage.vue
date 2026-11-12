@@ -57,6 +57,16 @@
           <div><div class="label">违规样本</div><div class="text-[13px] tabular-nums">{{ runStore.detail.issue_count }}</div></div>
         </div>
 
+        <div v-if="runStore.detail.correction" class="flex flex-wrap items-baseline gap-x-6 gap-y-1 py-2 border-b border-rule text-[11px] text-ink-soft tabular-nums">
+          <span class="eyebrow">纠错台账结转</span>
+          <span>新增 {{ runStore.detail.correction.created }}</span>
+          <span>仍待修正 {{ runStore.detail.correction.still_open }}</span>
+          <span>重新打开 {{ runStore.detail.correction.reopened }}</span>
+          <span>已修好 {{ runStore.detail.correction.fixed }}</span>
+          <span>可用记录 {{ runStore.detail.correction.usable_rows }} / {{ runStore.detail.correction.total_rows }}</span>
+          <RouterLink :to="{ path: '/corrections', query: { dataset: String(runStore.detail.dataset_id) } }" class="link-button text-[11px]">去看纠错台账 →</RouterLink>
+        </div>
+
         <RunProgressList class="mt-3" :items="runStore.detail.items" :run-status="runStore.detail.status" @drill="drill" />
 
         <p v-if="runStore.detail.status === 'queued' || runStore.detail.status === 'running'" class="mt-3 text-[11.5px] text-ink-soft">

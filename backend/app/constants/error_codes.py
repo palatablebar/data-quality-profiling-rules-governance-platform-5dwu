@@ -26,6 +26,7 @@ class ErrorCode(str, Enum):
     # auth-layer additions (not part of the data-quality catalogue)
     FORBIDDEN = "QUAL-2015"
     UNAUTHORIZED = "QUAL-2016"
+    BUSINESS_KEY_INVALID = "QUAL-2017"
 
 
 ERROR_MESSAGES = {
@@ -45,6 +46,7 @@ ERROR_MESSAGES = {
     ErrorCode.ISSUE_CLOSED: "问题单已关闭，无法再流转",
     ErrorCode.FORBIDDEN: "当前角色无权执行该操作",
     ErrorCode.UNAUTHORIZED: "未登录或登录已过期",
+    ErrorCode.BUSINESS_KEY_INVALID: "业务键列不存在于当前文件",
 }
 
 ERROR_STATUS = {
@@ -64,6 +66,7 @@ ERROR_STATUS = {
     ErrorCode.ISSUE_CLOSED: 409,
     ErrorCode.FORBIDDEN: 403,
     ErrorCode.UNAUTHORIZED: 401,
+    ErrorCode.BUSINESS_KEY_INVALID: 400,
 }
 
 

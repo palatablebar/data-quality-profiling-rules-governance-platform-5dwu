@@ -37,6 +37,10 @@ LOG_TEMPLATES = {
     "AUDIT_ISSUE_ASSIGN": "issue assigned issue_id={issue_id} assignee_id={assignee_id} status={status}",
     "AUDIT_ISSUE_STATUS": "issue status changed issue_id={issue_id} from={before} to={after}",
     "AUDIT_ISSUE_RECHECK": "issues rechecked run_id={run_id} fixed_count={fixed_count} remaining={remaining}",
+    # --- correction ledger ---
+    "CORRECTION_SYNCED": "correction ledger synced run_id={run_id} dataset_id={dataset_id} created={created} still_open={still_open} reopened={reopened} fixed={fixed} open_entries={open_entries}",
+    "CORRECTION_KEY_RESET": "correction ledger reset dataset_id={dataset_id} reason={reason} removed={removed}",
+    "DATASET_KEY_UPDATED": "dataset business key updated dataset_id={dataset_id} business_key_column={business_key_column} reset_items={reset_items}",
     # --- cross-cutting ---
     "AUDIT_QUOTA_REJECTED": "quota rejected user_id={user_id} used={used} quota={quota}",
     "AUDIT_RATE_LIMITED": "rate limit hit user_id={user_id} window_max={window_max}",
